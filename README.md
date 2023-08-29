@@ -16,13 +16,13 @@ in the [Twilight article on Wikipedia](https://en.wikipedia.org/wiki/Twilight).
 
 ```julia
 using Pkg
-Pkg.add https://github.com/g-rppl/suncalc.jl.git
+pkg.add("suncalc")
 ```
 
 ## Example
 
 ```julia
-import suncalc
+using suncalc
 using Dates
 getSunlightTimes(Date(2000,01,01), 54, 9)
 getSunlightTimes(Date(2000,01,01), 54, 9; keep=[:sunrise, :sunset])
