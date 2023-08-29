@@ -1,15 +1,12 @@
 
 round(x::Missing, r::Type{Second}) = missing
-astimezone(zdt::Missing, tz::FixedTimeZone) = missing
+julian2datetime(dt::Missing) = missing
+ZonedDateTime(dt::Missing, tz::TimeZone) = missing
+astimezone(zdt::Missing, tz::TimeZone) = missing
 
 function toDays(date::Date)
     J2000 = 2451545
     return datetime2julian(DateTime(date)) - J2000
-end
-
-function todatetime(f::Union{Number,Missing})
-    d = ismissing(f) ? missing : ZonedDateTime(julian2datetime(f), tz"UTC")
-    return d
 end
 
 function rightAscension(l::Float64, b::Float64)
@@ -39,7 +36,7 @@ end
 
 
 # Calculations for sun times
-function julianCycle(d::Number, lw::Float64)
+function julianCycle(d::Real, lw::Float64)
     return round(d - 0.0009 - lw / (2 * pi))
 end
 
@@ -66,7 +63,7 @@ function getSetJ(h::Float64, lw::Float64, phi::Float64, dec::Float64,
 end
 
 # Calculates sun times for a given date and latitude/longitude
-function getTimes(date::Date, lat::Number, lng::Number)
+function getTimes(date::Date, lat::Real, lng::Real)
 
     rad = (pi / 180)
     lw = rad * -lng
@@ -82,25 +79,25 @@ function getTimes(date::Date, lat::Number, lng::Number)
 
     Jnoon = solarTransitJ(ds, M, L)
 
-    result = (solarNoon=todatetime(Jnoon),
-        nadir=todatetime(Jnoon - 0.5),
-        sunrise=todatetime(
+    result = (solarNoon=julian2datetime(Jnoon),
+        nadir=julian2datetime(Jnoon - 0.5),
+        sunrise=julian2datetime(
             Jnoon - (getSetJ(-0.833 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        sunset=todatetime(getSetJ(-0.833 * rad, lw, phi, dec, n, M, L)),
-        sunriseEnd=todatetime(
+        sunset=julian2datetime(getSetJ(-0.833 * rad, lw, phi, dec, n, M, L)),
+        sunriseEnd=julian2datetime(
             Jnoon - (getSetJ(-0.3 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        sunsetStart=todatetime(getSetJ(-0.3 * rad, lw, phi, dec, n, M, L)),
-        dawn=todatetime(Jnoon - (getSetJ(-6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        dusk=todatetime(getSetJ(-6 * rad, lw, phi, dec, n, M, L)),
-        nauticalDawn=todatetime(
+        sunsetStart=julian2datetime(getSetJ(-0.3 * rad, lw, phi, dec, n, M, L)),
+        dawn=julian2datetime(Jnoon - (getSetJ(-6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        dusk=julian2datetime(getSetJ(-6 * rad, lw, phi, dec, n, M, L)),
+        nauticalDawn=julian2datetime(
             Jnoon - (getSetJ(-12 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        nauticalDusk=todatetime(getSetJ(-12 * rad, lw, phi, dec, n, M, L)),
-        nightEnd=todatetime(
+        nauticalDusk=julian2datetime(getSetJ(-12 * rad, lw, phi, dec, n, M, L)),
+        nightEnd=julian2datetime(
             Jnoon - (getSetJ(-18 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        night=todatetime(getSetJ(-18 * rad, lw, phi, dec, n, M, L)),
-        goldenHourEnd=todatetime(
+        night=julian2datetime(getSetJ(-18 * rad, lw, phi, dec, n, M, L)),
+        goldenHourEnd=julian2datetime(
             Jnoon - (getSetJ(6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        goldenHour=todatetime(getSetJ(6 * rad, lw, phi, dec, n, M, L))
+        goldenHour=julian2datetime(getSetJ(6 * rad, lw, phi, dec, n, M, L))
     )
 
     return map(x -> round(x, Dates.Second), result)

@@ -5,7 +5,8 @@ using TimeZones
 using DataFrames
 
 import Base: round
-import TimeZones: astimezone
+import Dates: julian2datetime
+import TimeZones: ZonedDateTime, astimezone
 
 include("utilis.jl")
 
@@ -14,19 +15,19 @@ available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
   :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
 """
-    getSunlightTimes(date::Date, lat::Number lon::Number, tz::FixedTimeZone= tz"UTC"; keep)
+    getSunlightTimes(date, lat lon, tz; keep)
 
 Inputs:
 
-  - `date`: Single date or vector of dates.
-  - `lat`: Single latitude.
-  - `lon`: Single longitude.
+  - `date`: Single or multiple dates.
+  - `lat`: Single or multiple latitudes.
+  - `lon`: Single or multiple longitudes.
   - `tz`: Timezone of results, defaults to UTC.
   - `keep`: Vector of variables to keep.
 
 Returns:
 
-  - 'NamedTuple' or 'DateFrame' of 'ZonedDateTime' Objects.
+  - 'NamedTuple' or 'DateFrame' of 'ZonedDateTime' objects.
 
 Available variables are:
 
@@ -46,36 +47,92 @@ Available variables are:
   - `dawn`: dawn (morning nautical twilight ends, morning civil twilight starts)
 """
 function getSunlightTimes(
-  date::Date, lat::Number, lon::Number, tz::FixedTimeZone=tz"UTC";
+  date::Date, lat::Real, lon::Real;
   keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
     :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
     :nightEnd, :night, :goldenHourEnd, :goldenHour])
 
-  @assert all(keep .∈ [available_var]) 
-  "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+  @assert all(keep .∈ [available_var]) "
+  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
   data = getTimes(date, lat, lon)
-  map(x -> astimezone(x, tz), data)
 
   return data[keep]
 end
 
 function getSunlightTimes(
-  date::Vector{Date}, lat::Number, lon::Number, tz::FixedTimeZone=tz"UTC";
+  date::Date, lat::Real, lon::Real, tz::TimeZone;
+  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+    :nightEnd, :night, :goldenHourEnd, :goldenHour])
+
+  @assert all(keep .∈ [available_var]) "
+  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+
+  data = getTimes(date, lat, lon)
+  data = map(x -> ZonedDateTime(x, tz), data)
+
+  return data[keep]
+end
+
+function getSunlightTimes(
+  date::Union{Date,Vector{Date}},
+  lat::Union{Real,Vector{<:Real}},
+  lon::Union{Real,Vector{<:Real}};
   keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
     :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
     :nightEnd, :night, :goldenHourEnd, :goldenHour]
 )
 
-  @assert all(keep .∈ [available_var])
-  "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+  @assert length(lat) == length(lon) "
+  Latitude and Longitude must be of equal length."
+
+  if length(lat) > 1
+    @assert typeof(date) == Date || length(date) == length(lat) "
+    Date must be either length 1 or the same as Latitude/Longitude."
+  end
+
+  @assert all(keep .∈ [available_var]) "
+  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
   data = DataFrame(date=date,
     lat=lat,
     lon=lon)
 
   times = DataFrame(getTimes.(data.date, data.lat, data.lon))
-  times .= astimezone.(times, tz)
+
+  data = hcat(data, times[:, keep])
+
+  return data
+end
+
+function getSunlightTimes(
+  date::Union{Date,Vector{Date}},
+  lat::Union{Real,Vector{<:Real}},
+  lon::Union{Real,Vector{<:Real}},
+  tz::TimeZone;
+  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+    :nightEnd, :night, :goldenHourEnd, :goldenHour]
+)
+
+  @assert length(lat) == length(lon) "
+  Latitude and Longitude must be of equal length."
+
+  if length(lat) > 1
+    @assert typeof(date) == Date || length(date) == length(lat) "
+    Date must be either length 1 or the same as Latitude/Longitude."
+  end
+
+  @assert all(keep .∈ [available_var]) "
+  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+
+  data = DataFrame(date=date,
+    lat=lat,
+    lon=lon)
+
+  times = DataFrame(getTimes.(data.date, data.lat, data.lon))
+  times = astimezone.(ZonedDateTime.(times, tz"UTC"), tz)
 
   data = hcat(data, times[:, keep])
 
