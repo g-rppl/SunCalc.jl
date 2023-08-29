@@ -14,19 +14,19 @@ available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
   :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
 """
-    getSunlightTimes(date::Date, lat lon, keep)
+    getSunlightTimes(date::Date, lat::Number lon::Number, tz::FixedTimeZone= tz"UTC"; keep)
 
 Inputs:
 
-  - `date`: Single or multiple Date.
+  - `date`: Single date or vector of dates.
   - `lat`: Single latitude.
   - `lon`: Single longitude.
-  - `tz`: Timezone of results.
+  - `tz`: Timezone of results, defaults to UTC.
   - `keep`: Vector of variables to keep.
 
 Returns:
 
-  NamedTuple of DateTime in UTC.
+  - 'NamedTuple' or 'DateFrame' of 'ZonedDateTime' Objects.
 
 Available variables are:
 
