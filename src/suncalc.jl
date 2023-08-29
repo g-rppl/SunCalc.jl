@@ -51,7 +51,8 @@ function getSunlightTimes(
     :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
     :nightEnd, :night, :goldenHourEnd, :goldenHour])
 
-  @assert all(keep .∈ [available_var]) "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+  @assert all(keep .∈ [available_var]) 
+  "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
   data = getTimes(date, lat, lon)
   map(x -> astimezone(x, tz), data)
@@ -66,8 +67,8 @@ function getSunlightTimes(
     :nightEnd, :night, :goldenHourEnd, :goldenHour]
 )
 
-  @assert all(keep .∈ [available_var]) "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
-
+  @assert all(keep .∈ [available_var])
+  "$(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
   data = DataFrame(date=date,
     lat=lat,

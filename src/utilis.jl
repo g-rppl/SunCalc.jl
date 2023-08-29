@@ -84,17 +84,22 @@ function getTimes(date::Date, lat::Number, lng::Number)
 
     result = (solarNoon=todatetime(Jnoon),
         nadir=todatetime(Jnoon - 0.5),
-        sunrise=todatetime(Jnoon - (getSetJ(-0.833 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        sunrise=todatetime(
+            Jnoon - (getSetJ(-0.833 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         sunset=todatetime(getSetJ(-0.833 * rad, lw, phi, dec, n, M, L)),
-        sunriseEnd=todatetime(Jnoon - (getSetJ(-0.3 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        sunriseEnd=todatetime(
+            Jnoon - (getSetJ(-0.3 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         sunsetStart=todatetime(getSetJ(-0.3 * rad, lw, phi, dec, n, M, L)),
         dawn=todatetime(Jnoon - (getSetJ(-6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         dusk=todatetime(getSetJ(-6 * rad, lw, phi, dec, n, M, L)),
-        nauticalDawn=todatetime(Jnoon - (getSetJ(-12 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        nauticalDawn=todatetime(
+            Jnoon - (getSetJ(-12 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         nauticalDusk=todatetime(getSetJ(-12 * rad, lw, phi, dec, n, M, L)),
-        nightEnd=todatetime(Jnoon - (getSetJ(-18 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        nightEnd=todatetime(
+            Jnoon - (getSetJ(-18 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         night=todatetime(getSetJ(-18 * rad, lw, phi, dec, n, M, L)),
-        goldenHourEnd=todatetime(Jnoon - (getSetJ(6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
+        goldenHourEnd=todatetime(
+            Jnoon - (getSetJ(6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
         goldenHour=todatetime(getSetJ(6 * rad, lw, phi, dec, n, M, L))
     )
 

@@ -17,9 +17,15 @@ Pkg.add https://github.com/g-rppl/suncalc.jl.git
 
 ```julia
 import suncalc
+using Dates
+using TimeZones
 getSunlightTimes(Date(2000,01,01), 54, 9)
 getSunlightTimes(Date(2000,01,01), 54, 9, tz"UTC-3")
 getSunlightTimes(Date(2000,01,01), 54, 9; keep=[:sunrise, :sunset])
+
+using DataFrames
+days = collect(Date(2000,01,01):Day(1):Date(2000,12,31))
+getSunlightTimes(days, 54, 9)
 ```
 
 ## About suncalc.jl
