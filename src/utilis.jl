@@ -9,11 +9,6 @@ function toDays(date::Date)
     return datetime2julian(DateTime(date)) - J2000
 end
 
-function rightAscension(l::Float64, b::Float64)
-    e = (pi / 180) * 23.4397
-    return atan2(sin(l) * cos(e) - tan(b) * sin(e), cos(l))
-end
-
 
 function declination(l::Float64, b::Float64)
     e = (pi / 180) * 23.4397

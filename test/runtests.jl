@@ -4,7 +4,7 @@ using Dates
 using TimeZones
 using DataFrames
 
-@testset "suncalc.jl" begin
+@testset "sunlightTimes" begin
     d = Date(2000, 01, 01)
 
     result = getSunlightTimes(d, 54, 9; keep=[:sunrise, :sunset])
