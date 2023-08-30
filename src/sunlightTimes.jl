@@ -59,7 +59,7 @@ function getSunlightTimes(
   $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
   data = getTimes(date, lat, lon)
-  data = map(x -> ZonedDateTime(x, tz), data)
+  data = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), data)
 
   return data[keep]
 end
@@ -117,8 +117,11 @@ function getSunlightTimes(
 
   data = DataFrame(date=date, lat=lat, lon=lon)
 
-  times = DataFrame(getTimes.(data.date, data.lat, data.lon))
-  times = astimezone.(ZonedDateTime.(times, tz"UTC"), tz)
+  times = getTimes.(data.date, data.lat, data.lon)
+  for i in 1:length(times)
+    times[i] = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), times[i])
+  end
+  times = DataFrame(times)
 
   data = hcat(data, times[:, keep])
 
