@@ -5,7 +5,7 @@
 [![Build status](https://github.com/g-rppl/SunCalc.jl/workflows/CI/badge.svg)](https://github.com/g-rppl/SunCalc.jl/actions)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
-Julia implementation of the [SunCalc](https://github.com/mourner/suncalc/) package for calculating sunlight phases 
+Julia implementation of the [SunCalc](https://github.com/mourner/suncalc/) package for calculating sun position and sunlight phases 
 (times for sunrise, sunset, dusk, etc.) for the given location and time.
 
 Most calculations are based on the formulas given in the Astronomy Answers articles
@@ -38,6 +38,14 @@ getSunlightTimes(days, 54, 9)
 ```
 
 ## Reference
+
+### Sun position
+
+Returns an object with the following properties:
+
+- `altitude`: sun altitude above the horizon in radians,
+e.g. `0` at the horizon and `π/2` at the zenith (straight over your head).
+- `azimuth`: sun azimuth in radians (direction along the horizon, measured from south to west), e.g. `0` is south and `π * 3/4` is northwest.
 
 ### Sunlight times
 

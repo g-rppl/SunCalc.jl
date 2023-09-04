@@ -1,8 +1,4 @@
 
-available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
-  :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
-  :nightEnd, :night, :goldenHourEnd, :goldenHour]
-
 """
     getSunlightTimes(date, lat lon, tz; keep)
 
@@ -12,13 +8,15 @@ available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
   - `lat`: Single or multiple latitudes.
   - `lon`: Single or multiple longitudes.
   - `tz`: Timezone of results, defaults to UTC.
-  - `keep`: Vector of variables to keep.
+  - `keep`: Vector of variables to keep. See Details.
 
 **Returns**:
 
   - `NamedTuple` or `DateFrame` of `DateTime` or `ZonedDateTime` objects.
 
-**Available variables are**:
+**Details**
+
+Available variables are:
 
   - `sunrise`: sunrise (top edge of the sun appears on the horizon)
   - `sunriseEnd`: sunrise ends (bottom edge of the sun touches the horizon)
@@ -36,94 +34,110 @@ available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
   - `dawn`: dawn (morning nautical twilight ends, morning civil twilight starts)
 """
 function getSunlightTimes(
-  date::Date, lat::Real, lon::Real;
-  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
-    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
-    :nightEnd, :night, :goldenHourEnd, :goldenHour])
+    date::Date, lat::Real, lon::Real;
+    keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour])
 
-  @assert all(keep .∈ [available_var]) "
-  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+    available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
-  data = getTimes(date, lat, lon)
+    @assert all(keep .∈ [available_var]) "
+    $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
-  return data[keep]
+    data = getTimes(date, lat, lon)
+
+    return data[keep]
 end
 
 function getSunlightTimes(
-  date::Date, lat::Real, lon::Real, tz::TimeZone;
-  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
-    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
-    :nightEnd, :night, :goldenHourEnd, :goldenHour])
+    date::Date, lat::Real, lon::Real, tz::TimeZone;
+    keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour])
 
-  @assert all(keep .∈ [available_var]) "
-  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+    available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
-  data = getTimes(date, lat, lon)
-  data = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), data)
+    @assert all(keep .∈ [available_var]) "
+    $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
-  return data[keep]
+    data = getTimes(date, lat, lon)
+    data = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), data)
+
+    return data[keep]
 end
 
 function getSunlightTimes(
-  date::Union{Date,Vector{Date}},
-  lat::Union{Real,Vector{<:Real}},
-  lon::Union{Real,Vector{<:Real}};
-  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
-    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
-    :nightEnd, :night, :goldenHourEnd, :goldenHour]
+    date::Union{Date,Vector{Date}},
+    lat::Union{Real,Vector{<:Real}},
+    lon::Union{Real,Vector{<:Real}};
+    keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 )
 
-  @assert length(lat) == length(lon) "
-  Latitude and Longitude must be of equal length."
+    @assert length(lat) == length(lon) "
+    Latitude and Longitude must be of equal length."
 
-  if length(lat) > 1
-    @assert typeof(date) == Date || length(date) == length(lat) "
-    For more than one Location, Date must be either length 1 
-    or the same as Latitude/Longitude."
-  end
+    if length(lat) > 1
+        @assert typeof(date) == Date || length(date) == length(lat) "
+        For more than one Location, Date must be either length 1 
+        or the same as Latitude/Longitude."
+    end
 
-  @assert all(keep .∈ [available_var]) "
-  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+    available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
-  data = DataFrame(date=date, lat=lat, lon=lon)
+    @assert all(keep .∈ [available_var]) "
+    $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
-  times = DataFrame(getTimes.(data.date, data.lat, data.lon))
+    data = DataFrame(date=date, lat=lat, lon=lon)
 
-  data = hcat(data, times[:, keep])
+    times = DataFrame(getTimes.(data.date, data.lat, data.lon))
 
-  return data
+    data = hcat(data, times[:, keep])
+
+    return data
 end
 
 function getSunlightTimes(
-  date::Union{Date,Vector{Date}},
-  lat::Union{Real,Vector{<:Real}},
-  lon::Union{Real,Vector{<:Real}},
-  tz::TimeZone;
-  keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
-    :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
-    :nightEnd, :night, :goldenHourEnd, :goldenHour]
+    date::Union{Date,Vector{Date}},
+    lat::Union{Real,Vector{<:Real}},
+    lon::Union{Real,Vector{<:Real}},
+    tz::TimeZone;
+    keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 )
 
-  @assert length(lat) == length(lon) "
-  Latitude and Longitude must be of equal length."
+    available_var = [:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour]
 
-  if length(lat) > 1
-    @assert typeof(date) == Date || length(date) == length(lat) "
-    Date must be either length 1 or the same as Latitude/Longitude."
-  end
+    @assert length(lat) == length(lon) "
+    Latitude and Longitude must be of equal length."
 
-  @assert all(keep .∈ [available_var]) "
-  $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
+    if length(lat) > 1
+        @assert typeof(date) == Date || length(date) == length(lat) "
+        Date must be either length 1 or the same as Latitude/Longitude."
+    end
 
-  data = DataFrame(date=date, lat=lat, lon=lon)
+    @assert all(keep .∈ [available_var]) "
+    $(keep[Not(keep .∈ [available_var])]) is not a valid variable."
 
-  times = getTimes.(data.date, data.lat, data.lon)
-  for i in 1:length(times)
-    times[i] = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), times[i])
-  end
-  times = DataFrame(times)
+    data = DataFrame(date=date, lat=lat, lon=lon)
 
-  data = hcat(data, times[:, keep])
+    times = getTimes.(data.date, data.lat, data.lon)
+    for i in 1:length(times)
+        times[i] = map(x -> ismissing(x) ? missing : ZonedDateTime(x, tz), times[i])
+    end
+    times = DataFrame(times)
 
-  return data
+    data = hcat(data, times[:, keep])
+
+    return data
 end
