@@ -1,3 +1,5 @@
+## About
+
 Julia implementation of the [SunCalc](https://github.com/mourner/suncalc/) package for calculating sun position and sunlight phases 
 (times for sunrise, sunset, dusk, etc.) for the given location and time.
 

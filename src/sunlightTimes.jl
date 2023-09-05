@@ -43,7 +43,7 @@ julia> getSunlightTimes(Date(2000, 07, 01), 54, 9, tz"UTC-3"; keep=[:sunrise, :s
 sunset = ZonedDateTime(2000, 7, 1, 20, 0, 20, tz"UTC-03:00"))
 
 julia> using DataFrames
-julia> days = collect(Date(2000,07,01):Day(1):Date(2000,12,31))
+julia> days = collect(Date(2000, 07, 01):Day(1):Date(2000, 12, 31))
 julia> getSunlightTimes(days, 54, 9)
 184×17 DataFrame
 [...]

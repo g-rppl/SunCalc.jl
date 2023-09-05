@@ -1,4 +1,3 @@
-
 ## Sun position
 ```@docs
 SunCalc.getSunPosition
