@@ -1,67 +1,89 @@
 
-function toDays(date::Date)
+function toDays(date::Union{Date,DateTime})
     J2000 = 2451545
     return datetime2julian(DateTime(date)) - J2000
 end
 
-function toDateTime(j::Union{Real,Missing})
-    return ismissing(j) ? missing : julian2datetime(j)
+toDateTime(j::Union{Real,Missing}) = ismissing(j) ? missing : julian2datetime(j)
+
+
+ϵ = (π / 180) * 23.4397 # obliquity of the Earth
+rightAscension(l::Real, b::Real) = atan(sin(l) * cos(ϵ) - tan(b) * sin(ϵ), cos(l))
+declination(l::Real, b::Real) = asin(sin(b) * cos(ϵ) + cos(b) * sin(ϵ) * sin(l))
+
+
+azimuth(hm::Real, ϕ::Real, dec::Real) = atan(sin(hm), cos(hm) * sin(ϕ) - tan(dec) * cos(ϕ))
+
+function altitude(hm::Real, ϕ::Real, dec::Real)
+    return asin(sin(ϕ) * sin(dec) + cos(ϕ) * cos(dec) * cos(hm))
 end
 
+siderealTime(d::Real, lw::Real) = (π / 180) * (280.16 + 360.9856235 * d) - lw
 
-function declination(l::Float64, b::Float64)
-    e = (pi / 180) * 23.4397
-    return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l))
-end
+solarMeanAnomaly(d::Real) = (π / 180) * (357.5291 + 0.98560028 * d)
 
 
-function solarMeanAnomaly(d::Float64)
-    return (pi / 180) * (357.5291 + 0.98560028 * d)
-end
-
-
-function eclipticLongitude(m::Float64)
+function eclipticLongitude(m::Real)
     # Equation of center
-    C = (pi / 180) * (1.9148 * sin(m) + 0.02 * sin(2 * m) + 0.0003 * sin(3 * m))
+    C = (π / 180) * (1.9148 * sin(m) + 0.02 * sin(2 * m) + 0.0003 * sin(3 * m))
     # Perihelion of the Earth
-    P = (pi / 180) * 102.9372
-    return m + C + P + pi
+    P = (π / 180) * 102.9372
+    return m + C + P + π
+end
+
+function sunCoords(d::Real)
+    m = solarMeanAnomaly(d)
+    l = eclipticLongitude(m)
+    return (dec=declination(l, 0.0), ra=rightAscension(l, 0.0))
+end
+
+
+# Calculate sun position for a given date and latitude/longitude
+function getPosition(time::DateTime, lat::Real, lon::Real)
+
+    lw = (π / 180) * -lon
+    ϕ = (π / 180) * lat
+    d = toDays(time)
+
+    c = sunCoords(d)
+    hm = siderealTime(d, lw) - c.ra
+
+    return (altitude=altitude(hm, ϕ, c.dec),
+        azimuth=azimuth(hm, ϕ, c.dec))
 end
 
 
 # Calculations for sun times
-function julianCycle(d::Real, lw::Float64)
-    return round(d - 0.0009 - lw / (2 * pi))
+julianCycle(d::Real, lw::Real) = round(d - 0.0009 - lw / 2π)
+
+function approxTransit(ht::Union{Real,Missing}, lw::Real, n::Real)
+    return 0.0009 + (ht + lw) / 2π + n
 end
 
-function approxTransit(ht::Union{Float64,Missing}, lw::Float64, n::Float64)
-    return 0.0009 + (ht + lw) / (2 * pi) + n
-end
-
-function solarTransitJ(ds::Union{Float64,Missing}, m::Float64, l::Float64)
+function solarTransitJ(ds::Union{Real,Missing}, m::Real, l::Real)
     J2000 = 2451545
     return J2000 + ds + 0.0053 * sin(m) - 0.0069 * sin(2 * l)
 end
 
-function hourAngle(h::Float64, phi::Float64, d::Float64)
-    tmp = (sin(h) - sin(phi) * sin(d)) / (cos(phi) * cos(d))
+function hourAngle(h::Real, ϕ::Real, d::Real)
+    tmp = (sin(h) - sin(ϕ) * sin(d)) / (cos(ϕ) * cos(d))
     return abs(tmp) <= 1 ? acos(tmp) : missing
 end
 
-# Returns set time for the given sun altitude
-function getSetJ(h::Float64, lw::Float64, phi::Float64, dec::Float64,
-    n::Float64, m::Float64, l::Float64)
-    w = hourAngle(h, phi, dec)
+# Return set time for the given sun altitude
+function getSetJ(h::Real, lw::Real, ϕ::Real, dec::Real,
+    n::Real, m::Real, l::Real)
+    w = hourAngle(h, ϕ, dec)
     a = approxTransit(w, lw, n)
     return solarTransitJ(a, m, l)
 end
 
-# Calculates sun times for a given date and latitude/longitude
-function getTimes(date::Date, lat::Real, lng::Real)
+# Calculate sun times for a given date and latitude/longitude
+function getTimes(date::Date, lat::Real, lon::Real)
 
-    rad = (pi / 180)
-    lw = rad * -lng
-    phi = rad * lat
+    rad = (π / 180)
+    lw = rad * -lon
+    ϕ = rad * lat
 
     d = toDays(date)
     n = julianCycle(d, lw)
@@ -76,22 +98,22 @@ function getTimes(date::Date, lat::Real, lng::Real)
     result = (solarNoon=toDateTime(Jnoon),
         nadir=toDateTime(Jnoon - 0.5),
         sunrise=toDateTime(
-            Jnoon - (getSetJ(-0.833 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        sunset=toDateTime(getSetJ(-0.833 * rad, lw, phi, dec, n, M, L)),
+            Jnoon - (getSetJ(-0.833 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        sunset=toDateTime(getSetJ(-0.833 * rad, lw, ϕ, dec, n, M, L)),
         sunriseEnd=toDateTime(
-            Jnoon - (getSetJ(-0.3 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        sunsetStart=toDateTime(getSetJ(-0.3 * rad, lw, phi, dec, n, M, L)),
-        dawn=toDateTime(Jnoon - (getSetJ(-6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        dusk=toDateTime(getSetJ(-6 * rad, lw, phi, dec, n, M, L)),
+            Jnoon - (getSetJ(-0.3 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        sunsetStart=toDateTime(getSetJ(-0.3 * rad, lw, ϕ, dec, n, M, L)),
+        dawn=toDateTime(Jnoon - (getSetJ(-6 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        dusk=toDateTime(getSetJ(-6 * rad, lw, ϕ, dec, n, M, L)),
         nauticalDawn=toDateTime(
-            Jnoon - (getSetJ(-12 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        nauticalDusk=toDateTime(getSetJ(-12 * rad, lw, phi, dec, n, M, L)),
+            Jnoon - (getSetJ(-12 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        nauticalDusk=toDateTime(getSetJ(-12 * rad, lw, ϕ, dec, n, M, L)),
         nightEnd=toDateTime(
-            Jnoon - (getSetJ(-18 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        night=toDateTime(getSetJ(-18 * rad, lw, phi, dec, n, M, L)),
+            Jnoon - (getSetJ(-18 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        night=toDateTime(getSetJ(-18 * rad, lw, ϕ, dec, n, M, L)),
         goldenHourEnd=toDateTime(
-            Jnoon - (getSetJ(6 * rad, lw, phi, dec, n, M, L) - Jnoon)),
-        goldenHour=toDateTime(getSetJ(6 * rad, lw, phi, dec, n, M, L))
+            Jnoon - (getSetJ(6 * rad, lw, ϕ, dec, n, M, L) - Jnoon)),
+        goldenHour=toDateTime(getSetJ(6 * rad, lw, ϕ, dec, n, M, L))
     )
 
     result = map(x -> ismissing(x) ? missing : round(x, Dates.Second), result)
