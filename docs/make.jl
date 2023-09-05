@@ -12,5 +12,5 @@ makedocs(;
 )
 
 deploydocs(
-    repo = "github.com/g-rppl/SunCalc.jl.git",
+    repo = "github.com/g-rppl/SunCalc.jl.git"
 )

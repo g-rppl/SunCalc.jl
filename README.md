@@ -6,7 +6,7 @@
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://g-rppl.github.io/SunCalc.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://g-rppl.github.io/SunCalc.jl/dev)
 
 ## About 
 
