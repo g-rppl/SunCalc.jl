@@ -4,11 +4,11 @@ using Dates
 using TimeZones
 using DataFrames
 
+export getSunlightTimes, getSunPosition
+
 include("utilis.jl")
 
 include("sunlightTimes.jl")
-export getSunlightTimes
 include("sunPosition.jl")
-export getSunPosition
 
 end  # module

@@ -1,40 +1,58 @@
 
 """
-    getSunlightTimes(date, lat lon, tz; keep)
+    getSunlightTimes(
+        date::Date, 
+        lat::Real,
+        lon::Real,
+        tz::TimeZone; 
+        keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
+        :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
+        :nightEnd, :night, :goldenHourEnd, :goldenHour])
 
-**Inputs**:
+Calculate sunlight times for the given date and location. Return a `NamedTuple` 
+    or `DataFrame`.
+    
+Available variables:
 
-  - `date`: Single or multiple dates.
-  - `lat`: Single or multiple latitudes.
-  - `lon`: Single or multiple longitudes.
-  - `tz`: Timezone of results, defaults to UTC.
-  - `keep`: Vector of variables to keep. See Details.
+| Variable        | Description                                                              |
+| :-------------- | :----------------------------------------------------------------------- |
+| `sunrise`       | sunrise (top edge of the sun appears on the horizon)                     |
+| `sunriseEnd`    | sunrise ends (bottom edge of the sun touches the horizon)                |
+| `goldenHourEnd` | morning golden hour (soft light, best time for photography) ends         |
+| `solarNoon`     | solar noon (sun is in the highest position)                              |
+| `goldenHour`    | evening golden hour starts                                               |
+| `sunsetStart`   | sunset starts (bottom edge of the sun touches the horizon)               |
+| `sunset`        | sunset (sun disappears below the horizon, evening civil twilight starts) |
+| `dusk`          | dusk (evening nautical twilight starts)                                  |
+| `nauticalDusk`  | nautical dusk (evening astronomical twilight starts)                     |
+| `night`         | night starts (dark enough for astronomical observations)                 |
+| `nadir`         | nadir (darkest moment of the night, sun is in the lowest position)       |
+| `nightEnd`      | night ends (morning astronomical twilight starts)                        |
+| `nauticalDawn`  | nautical dawn (morning nautical twilight starts)                         |
+| `dawn`          | dawn (morning nautical twilight ends, morning civil twilight starts)     |
 
-**Returns**:
+# Examples
+```jldoctest
+julia> using Dates, SunCalc
+julia> getSunlightTimes(Date(2000, 07, 01), 54, 9; keep=[:sunrise, :sunset])
+(sunrise = DateTime("2000-07-01T02:57:50"), sunset = DateTime("2000-07-01T20:00:20"))
 
-  - `NamedTuple` or `DateFrame` of `DateTime` or `ZonedDateTime` objects.
+julia> using TimeZones
+julia> getSunlightTimes(Date(2000, 07, 01), 54, 9, tz"UTC-3"; keep=[:sunrise, :sunset])
+(sunrise = ZonedDateTime(2000, 7, 1, 2, 57, 50, tz"UTC-03:00"), 
+sunset = ZonedDateTime(2000, 7, 1, 20, 0, 20, tz"UTC-03:00"))
 
-**Details**
-
-Available variables are:
-
-  - `sunrise`: sunrise (top edge of the sun appears on the horizon)
-  - `sunriseEnd`: sunrise ends (bottom edge of the sun touches the horizon)
-  - `goldenHourEnd`: morning golden hour (soft light, best time for photography) ends
-  - `solarNoon`: solar noon (sun is in the highest position)
-  - `goldenHour`: evening golden hour starts
-  - `sunsetStart`: sunset starts (bottom edge of the sun touches the horizon)
-  - `sunset`: sunset (sun disappears below the horizon, evening civil twilight starts)
-  - `dusk`: dusk (evening nautical twilight starts)
-  - `nauticalDusk`: nautical dusk (evening astronomical twilight starts)
-  - `night`: night starts (dark enough for astronomical observations)
-  - `nadir`: nadir (darkest moment of the night, sun is in the lowest position)
-  - `nightEnd`: night ends (morning astronomical twilight starts)
-  - `nauticalDawn`: nautical dawn (morning nautical twilight starts)
-  - `dawn`: dawn (morning nautical twilight ends, morning civil twilight starts)
+julia> using DataFrames
+julia> days = collect(Date(2000,07,01):Day(1):Date(2000,12,31))
+julia> getSunlightTimes(days, 54, 9)
+184×17 DataFrame
+[...]
+```	
 """
 function getSunlightTimes(
-    date::Date, lat::Real, lon::Real;
+    date::Date,
+    lat::Real,
+    lon::Real;
     keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
         :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
         :nightEnd, :night, :goldenHourEnd, :goldenHour])
@@ -52,7 +70,10 @@ function getSunlightTimes(
 end
 
 function getSunlightTimes(
-    date::Date, lat::Real, lon::Real, tz::TimeZone;
+    date::Date,
+    lat::Real,
+    lon::Real,
+    tz::TimeZone;
     keep=[:solarNoon, :nadir, :sunrise, :sunset, :sunriseEnd,
         :sunsetStart, :dawn, :dusk, :nauticalDawn, :nauticalDusk,
         :nightEnd, :night, :goldenHourEnd, :goldenHour])

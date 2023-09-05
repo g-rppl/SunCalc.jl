@@ -1,15 +1,3 @@
-# SunCalc.jl
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/g-rppl/SunCalc.jl/blob/main/LICENSE)
-[![Coverage](https://codecov.io/gh/g-rppl/SunCalc.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/g-rppl/SunCalc.jl)
-[![Build status](https://github.com/g-rppl/SunCalc.jl/workflows/CI/badge.svg)](https://github.com/g-rppl/SunCalc.jl/actions)
-[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
-
-
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://g-rppl.github.io/SunCalc.jl/stable)
-
-## About 
-
 Julia implementation of the [SunCalc](https://github.com/mourner/suncalc/) package for calculating sun position and sunlight phases 
 (times for sunrise, sunset, dusk, etc.) for the given location and time.
 
