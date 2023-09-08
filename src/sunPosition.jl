@@ -13,14 +13,13 @@ Available variables:
 
 | Variable   | Description                                                                                                                 |
 | :--------- | :-------------------------------------------------------------------------------------------------------------------------- |
-| `altitude` | sun altitude above the horizon in radians, e.g. 0 at the horizon and π/2 at the zenith (straight over your head).           |
-| `azimuth`  | sun azimuth in radians (direction along the horizon, measured from south to west), e.g. 0 is south and π * 3/4 is northwest.|
+| `altitude` | Sun altitude above the horizon in radians, e.g. 0 at the horizon and π/2 at the zenith (straight over your head)            |
+| `azimuth`  | Sun azimuth in radians (direction along the horizon, measured from south to west), e.g. 0 is south and π * 3/4 is northwest |
 
 # Examples
-```jldoctest
-julia> using Dates, SunCalc
-julia> getSunPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9.0)
-(altitude = 1.021444013872015, azimuth = 0.23904867335099955)
+```julia
+using Dates, SunCalc
+getSunPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9.0)
 ```	
 """
 function getSunPosition(
@@ -38,7 +37,7 @@ function getSunPosition(
         time = DateTime(time, UTC)
     end
 
-    data = getPosition(time, lat, lon)
+    data = sunPosition(time, lat, lon)
 
     return data[keep]
 end
@@ -58,7 +57,7 @@ function getSunPosition(
 
     data = DataFrame(time=time, lat=lat, lon=lon)
 
-    pos = DataFrame(getPosition.(data.time, data.lat, data.lon))
+    pos = DataFrame(sunPosition.(data.time, data.lat, data.lon))
 
     data = hcat(data, pos[:, keep])
 

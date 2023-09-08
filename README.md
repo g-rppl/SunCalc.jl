@@ -20,6 +20,8 @@ in the [Twilight article on Wikipedia](https://en.wikipedia.org/wiki/Twilight).
 
 ## Installation
 
+The package is registered in the [General registry](https://github.com/JuliaRegistries/General) and so can be installed with:
+
 ```julia
 using Pkg
 pkg.add("SunCalc")
