@@ -8,12 +8,11 @@ Calculate moon illumination for the given time. Return a `NamedTuple` or `DataFr
 
 Available variables:
 
-| Variable   | Description                                                                                                       |
-| :--------- | :---------------------------------------------------------------------------------------------------------------- |
-| `fraction` | Illuminated fraction of the moon; varies from 0.0 (new moon) to 1.0 (full moon)                                   |
-| `phase`    | Moon phase; varies from 0.0 to 1.0, described below                                                               |
-| `angle`    | Midpoint angle in radians of the illuminated limb of the moon reckoned eastward from the north point of the disk; |
-|            | the moon is waxing if the angle is negative, and waning if positive                                               |
+| Variable   | Description                                                                                                                                                                           |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fraction` | Illuminated fraction of the moon; varies from 0.0 (new moon) to 1.0 (full moon)                                                                                                       |
+| `phase`    | Moon phase; varies from 0.0 to 1.0, described below                                                                                                                                   |
+| `angle`    | Midpoint angle in radians of the illuminated limb of the moon reckoned eastward from the north point of the disk; the moon is waxing if the angle is negative, and waning if positive |                                          |
 
 Moon phase value should be interpreted like this:
 
