@@ -113,3 +113,32 @@ end
     @test isa(result, DataFrames.DataFrame)
     @test isequal(result, result_tz)
 end
+
+@testset "moonIllumination" begin
+    # Single input values
+    result = getMoonIllumination(t)
+    expected = [0.0016370702592863884, 0.9871174346869234, 1.2446094824748517]
+    type = NamedTuple{
+        (:fraction, :phase, :angle),
+        Tuple{Float64,Float64,Float64}}
+    @test isequal(collect(result), expected)
+    @test isa(result, type)
+
+    result = getMoonIllumination(Date(t); keep=[:fraction])
+    @test isequal(collect(result), [0.009821644145731667])
+    @test isa(result, NamedTuple{(:fraction,),Tuple{Float64}})
+
+    # Single ZonedDateTime input
+    result = getMoonIllumination(tz)
+    @test isequal(collect(result), expected)
+    @test isa(result, type)
+
+    # Multiple time inputs
+    result = getMoonIllumination(tt)
+    @test isa(result, DataFrames.DataFrame)
+
+    # Multiple ZonedDateTime inputs
+    result_tz = getMoonIllumination(ttz)
+    @test isa(result, DataFrames.DataFrame)
+    @test isequal(result, result_tz)
+end

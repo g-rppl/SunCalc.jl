@@ -4,7 +4,7 @@
         time::Union{DateTime,ZonedDateTime},
         lat::Real,
         lon::Real;
-        keep = [:altitude, :azimuth, :distance, :parallacticAngle])
+        keep=[:altitude, :azimuth, :distance, :parallacticAngle])
 
 Calculate the sun position for the given time and location. Return a `NamedTuple`
     or `DataFrame`.
@@ -22,14 +22,16 @@ Available variables:
 # Examples 
 ```julia	
 using Dates, SunCalc
-getMoonPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9.0)
+getMoonPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9)
+
+getMoonPosition(now(), 54, 9; keep=[:altitude])
 ```
 """
 function getMoonPosition(
     time::Union{DateTime,ZonedDateTime},
     lat::Real,
     lon::Real;
-    keep = [:altitude, :azimuth, :distance, :parallacticAngle])
+    keep=[:altitude, :azimuth, :distance, :parallacticAngle])
   
   available_var  = [:altitude, :azimuth, :distance, :parallacticAngle]
 

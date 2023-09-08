@@ -19,7 +19,9 @@ Available variables:
 # Examples
 ```julia
 using Dates, SunCalc
-getSunPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9.0)
+getSunPosition(DateTime(2000, 07, 01, 12, 00, 00), 54, 9)
+
+getSunPosition(now(), 54, 9; keep=[:altitude])
 ```	
 """
 function getSunPosition(

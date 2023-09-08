@@ -34,10 +34,10 @@ Available variables:
 # Examples
 ```julia
 using Dates, SunCalc
-getSunlightTimes(Date(2000, 07, 01), 54, 9; keep=[:sunrise, :sunset])
+getSunlightTimes(today(), 54, 9; keep=[:sunrise, :sunset])
 
 using TimeZones
-getSunlightTimes(Date(2000, 07, 01), 54, 9, tz"UTC-3"; keep=[:sunrise, :sunset])
+getSunlightTimes(Date(2000, 07, 01), 54, 9, tz"UTC-3")
 
 using DataFrames
 days = collect(Date(2000, 07, 01):Day(1):Date(2000, 12, 31))

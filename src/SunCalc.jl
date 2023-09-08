@@ -5,12 +5,13 @@ using TimeZones
 using DataFrames
 
 export getSunPosition, getSunlightTimes
-export getMoonPosition	
+export getMoonPosition, getMoonIllumination
 
 include("utilis.jl")
 
 include("sunPosition.jl")
 include("sunlightTimes.jl")
 include("moonPosition.jl")
+include("moonIllumination.jl")
 
 end

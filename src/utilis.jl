@@ -35,12 +35,14 @@ function eclipticLongitude(m::Real)
     C = (π / 180) * (1.9148 * sin(m) + 0.02 * sin(2 * m) + 0.0003 * sin(3 * m))
     # Perihelion of the Earth
     P = (π / 180) * 102.9372
+
     return m + C + P + π
 end
 
 function sunCoords(d::Real)
     m = solarMeanAnomaly(d)
     l = eclipticLongitude(m)
+
     return (dec=declination(l, 0.0), ra=rightAscension(l, 0.0))
 end
 
@@ -54,8 +56,7 @@ function sunPosition(time::DateTime, lat::Real, lon::Real)
     c = sunCoords(d)
     hm = siderealTime(d, lw) - c.ra
 
-    return (altitude=altitude(hm, ϕ, c.dec),
-        azimuth=azimuth(hm, ϕ, c.dec))
+    return (altitude=altitude(hm, ϕ, c.dec), azimuth=azimuth(hm, ϕ, c.dec))
 end
 
 
@@ -139,13 +140,14 @@ function moonCoords(d::Real)
     b = (π / 180) * 5.128 * sin(f)  # latitude
     dt = 385001 - 20905 * cos(m)  # distance to the moon in km
 
-    return (ra = rightAscension(l, b),
-        dec = declination(l, b),
-        dist = dt)
+    return (
+        ra=rightAscension(l, b),
+        dec=declination(l, b),
+        dist=dt)
 end
 
 function moonPosition(time::DateTime, lat::Real, lon::Real)
-  
+
     lw = (π / 180) * -lon
     phi = (π / 180) * lat
     d = toDays(time)
@@ -159,8 +161,31 @@ function moonPosition(time::DateTime, lat::Real, lon::Real)
 
     h = h + astroRefraction(h)  # altitude correction for refraction
 
-    return (altitude = h,
-        azimuth = azimuth(hm, phi, c.dec),
-        distance = c.dist,
-        parallacticAngle = pa)
+    return (
+        altitude=h,
+        azimuth=azimuth(hm, phi, c.dec),
+        distance=c.dist,
+        parallacticAngle=pa)
+end
+
+# calculations for illumination parameters of the moon, based on
+# http://idlastro.gsfc.nasa.gov/ftp/pro/astro/mphase.pro formulas and Chapter 48 of
+# "Astronomical Algorithms" 2nd edition by Jean meeus (Willmann-Bell, Richmond) 1998.
+function moonIllumination(time::DateTime)
+    d = toDays(time)
+    s = sunCoords(d)
+    m = moonCoords(d)
+
+    sdist = 149598000 # distance from Earth to Sun in km
+
+    phi = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra))
+    inc = atan(sdist * sin(phi), m.dist - sdist * cos(phi))
+    angle = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) -
+                                                cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra))
+
+
+    return (
+        fraction=((1 + cos(inc)) / 2),
+        phase=(0.5 + 0.5 * inc * ifelse(angle < 0, -1, 1) / π),
+        angle=angle)
 end
